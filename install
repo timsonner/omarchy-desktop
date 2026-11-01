@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Install the Exposé swipes, focused-window frame, and Tokyo Night.
+# Install the Exposé swipes, focused-window frame, Tokyo Night, and Quake console.
 # Safe to run again. It copies files into place and does not remove them.
 
 set -euo pipefail
@@ -9,15 +9,18 @@ root=$(cd "$(dirname "$0")" && pwd)
 home=${HOME:?}
 
 read_field() {
-  local key=$1
+  local file=$1
+  local key=$2
   local line
-  line=$(grep -E "^${key}=" "$root/plugin/expose.window-overview")
+  line=$(grep -E "^${key}=" "$file")
   printf '%s' "${line#*=}"
 }
 
-plugin_id=$(read_field id)
-plugin_url=$(read_field url)
-plugin_commit=$(read_field commit)
+plugin_id=$(read_field "$root/plugin/expose.window-overview" id)
+plugin_url=$(read_field "$root/plugin/expose.window-overview" url)
+plugin_commit=$(read_field "$root/plugin/expose.window-overview" commit)
+quake_url=$(read_field "$root/quake-console" url)
+quake_commit=$(read_field "$root/quake-console" commit)
 theme=$(sed -n '1{s/[[:space:]]*$//;p;}' "$root/theme")
 
 install -d "$home/.config/hypr"
@@ -97,6 +100,15 @@ elif entry.get("hotCornerEnabled") is not False:
     path.write_text(json.dumps(data, indent=2) + "\n")
 PY
 
+quake_src=$(mktemp -d)
+cleanup() { rm -rf "$quake_src"; }
+trap cleanup EXIT
+git -C "$quake_src" init -q
+git -C "$quake_src" remote add origin "$quake_url"
+git -C "$quake_src" fetch --depth 1 --quiet origin "$quake_commit"
+git -C "$quake_src" checkout --quiet FETCH_HEAD
+"$quake_src/install"
+
 current=$(omarchy theme current 2>/dev/null || true)
 if [[ $current != "$theme" ]]; then
   omarchy theme set "$theme"
@@ -106,4 +118,4 @@ if command -v hyprctl >/dev/null && [[ -n ${HYPRLAND_INSTANCE_SIGNATURE:-} ]]; t
   hyprctl reload >/dev/null
 fi
 
-printf 'Desktop setup installed. Swipe up with three fingers for open windows.\n'
+printf 'Desktop setup installed. Swipe up with three fingers for open windows. Super+` opens the Quake console.\n'
