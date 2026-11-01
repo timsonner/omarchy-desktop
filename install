@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Install the Exposé swipes, focused-window frame, Tokyo Night, Quake console,
-# and the Nautilus background.
+# the Nautilus background, and the upper-right System bar button.
 # Safe to run again. It copies files into place and does not remove them.
 
 set -euo pipefail
@@ -117,17 +117,70 @@ import json, pathlib, sys
 path, plugin_id = pathlib.Path(sys.argv[1]), sys.argv[2]
 if path.exists():
     data = json.loads(path.read_text())
+    before = json.loads(path.read_text())
 else:
     data = {"version": 1}
+    before = None
+
 plugins = data.setdefault("plugins", [])
 entry = next((item for item in plugins if isinstance(item, dict) and item.get("id") == plugin_id), None)
 if entry is None:
     plugins.append({"id": plugin_id, "hotCornerEnabled": False})
-    path.parent.mkdir(parents=True, exist_ok=True)
-    path.write_text(json.dumps(data, indent=2) + "\n")
 elif entry.get("hotCornerEnabled") is not False:
     entry["hotCornerEnabled"] = False
-    path.write_text(json.dumps(data, indent=2) + "\n")
+
+# Same button as the live bar: a power glyph that summons the existing System menu.
+SYSTEM_MENU = {
+    "id": "system-menu",
+    "type": "command",
+    "text": "\uf011",
+    "tooltip": "System",
+    "onClick": "omarchy menu summon system",
+}
+
+def widget_id(item):
+    if isinstance(item, str):
+        return item
+    if isinstance(item, dict):
+        return item.get("id")
+    return None
+
+def fail(message):
+    print(message, file=sys.stderr)
+    sys.exit(1)
+
+bar = data.get("bar")
+if bar is None:
+    bar = {}
+    data["bar"] = bar
+elif not isinstance(bar, dict):
+    fail("shell.json bar is not an object")
+
+layout = bar.get("layout")
+if layout is None:
+    layout = {}
+    bar["layout"] = layout
+elif not isinstance(layout, dict):
+    fail("shell.json bar.layout is not an object")
+
+for key, value in list(layout.items()):
+    if isinstance(value, list):
+        layout[key] = [item for item in value if widget_id(item) != "system-menu"]
+
+right = layout.get("right")
+if right is None:
+    right = []
+    layout["right"] = right
+elif not isinstance(right, list):
+    fail("shell.json bar.layout.right is not a list")
+
+power_at = next((i for i, item in enumerate(right) if widget_id(item) == "omarchy.power"), None)
+insert_at = len(right) if power_at is None else power_at + 1
+right.insert(insert_at, dict(SYSTEM_MENU))
+
+if data != before:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(json.dumps(data, indent=2, ensure_ascii=False) + "\n")
 PY
 
 quake_src=$(mktemp -d)
@@ -148,4 +201,4 @@ if command -v hyprctl >/dev/null && [[ -n ${HYPRLAND_INSTANCE_SIGNATURE:-} ]]; t
   hyprctl reload >/dev/null
 fi
 
-printf 'Desktop setup installed. Swipe up with three fingers for open windows. Super+` opens the Quake console. Reopen Files to pick up its background.\n'
+printf 'Desktop setup installed. Swipe up with three fingers for open windows. Super+` opens the Quake console. The System button is at the upper right of the bar. Reopen Files to pick up its background.\n'
