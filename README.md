@@ -9,6 +9,7 @@ What you get:
 - Tokyo Night.
 - A 6px border on the focused window, in the theme's bright magenta. Other windows have no border.
 - The Quake console from [timsonner/quake-console](https://github.com/timsonner/quake-console), pinned at `b13fbaa`. Super+` opens it.
+- Files keeps solid text and icons. Its background is 48% opaque, so the desktop shows through. Reopen Files after installing.
 
 Left and right three-finger swipes still change workspace. Super+Space still opens the menu.
 

@@ -1,6 +1,7 @@
 #!/bin/bash
 
-# Install the Exposé swipes, focused-window frame, Tokyo Night, and Quake console.
+# Install the Exposé swipes, focused-window frame, Tokyo Night, Quake console,
+# and the Nautilus background.
 # Safe to run again. It copies files into place and does not remove them.
 
 set -euo pipefail
@@ -26,6 +27,35 @@ theme=$(sed -n '1{s/[[:space:]]*$//;p;}' "$root/theme")
 install -d "$home/.config/hypr"
 install -m 644 "$root/hypr/gestures.lua" "$home/.config/hypr/gestures.lua"
 install -m 644 "$root/hypr/frame.lua" "$home/.config/hypr/frame.lua"
+
+install -d "$home/.config/gtk-4.0"
+python3 - "$home/.config/gtk-4.0/gtk.css" "$root/gtk/nautilus.css" << 'PY'
+import pathlib, sys
+
+path, source = map(pathlib.Path, sys.argv[1:3])
+start = "/* omarchy-desktop: nautilus */\n"
+end = "/* omarchy-desktop: nautilus end */\n"
+block = start + source.read_text().strip() + "\n" + end
+if path.exists():
+    text = path.read_text()
+else:
+    text = ""
+if start in text and end in text:
+    pre, rest = text.split(start, 1)
+    _, post = rest.split(end, 1)
+    text = pre + block + post
+    if pre and not pre.endswith("\n"):
+        text = pre + "\n" + block + post
+elif text.strip() in ("", source.read_text().strip()):
+    text = block
+else:
+    if text and not text.endswith("\n"):
+        text += "\n"
+    text += "\n" + block
+if not text.endswith("\n"):
+    text += "\n"
+path.write_text(text)
+PY
 
 python3 - "$home/.config/hypr/hyprland.lua" "$home/.config/hypr/input.lua" "$home/.config/hypr/looknfeel.lua" << 'PY'
 import pathlib, sys
@@ -118,4 +148,4 @@ if command -v hyprctl >/dev/null && [[ -n ${HYPRLAND_INSTANCE_SIGNATURE:-} ]]; t
   hyprctl reload >/dev/null
 fi
 
-printf 'Desktop setup installed. Swipe up with three fingers for open windows. Super+` opens the Quake console.\n'
+printf 'Desktop setup installed. Swipe up with three fingers for open windows. Super+` opens the Quake console. Reopen Files to pick up its background.\n'
