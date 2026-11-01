@@ -8,7 +8,7 @@ What you get:
 - Three-finger swipe up shows the open windows. Three-finger swipe down closes that overview and does not open the menu.
 - Tokyo Night.
 - A 6px border on the focused window, in the theme's bright magenta. Other windows have no border.
-- The Quake console from [timsonner/quake-console](https://github.com/timsonner/quake-console), pinned at `29586c9`. Super+` opens it.
+- The Quake console from [timsonner/quake-console](https://github.com/timsonner/quake-console), pinned at `b13fbaa`. Super+` opens it.
 
 Left and right three-finger swipes still change workspace. Super+Space still opens the menu.
 
