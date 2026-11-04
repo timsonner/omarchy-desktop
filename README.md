@@ -8,6 +8,7 @@ What you get:
 - Three-finger swipe up shows the open windows. Three-finger swipe down closes that overview and does not open the menu.
 - Tokyo Night.
 - A 6px border on the focused window, in the theme's bright magenta. Other windows have no border.
+- Clicking a window gives it focus, including one that sits in front of a stack. A floating window you focus comes forward.
 - The Quake console from [timsonner/quake-console](https://github.com/timsonner/quake-console), pinned at `b13fbaa`. Super+` opens it.
 - Files keeps solid text and icons. Its background is 48% opaque, so the desktop shows through. Reopen Files after installing.
 

@@ -27,6 +27,7 @@ theme=$(sed -n '1{s/[[:space:]]*$//;p;}' "$root/theme")
 install -d "$home/.config/hypr"
 install -m 644 "$root/hypr/gestures.lua" "$home/.config/hypr/gestures.lua"
 install -m 644 "$root/hypr/frame.lua" "$home/.config/hypr/frame.lua"
+install -m 644 "$root/hypr/focus.lua" "$home/.config/hypr/focus.lua"
 
 install -d "$home/.config/gtk-4.0"
 python3 - "$home/.config/gtk-4.0/gtk.css" "$root/gtk/nautilus.css" << 'PY'
@@ -93,6 +94,14 @@ if 'require("hypr.gestures")' not in text and 'require("hypr.frame")' not in tex
 elif 'require("hypr.gestures")' not in text or 'require("hypr.frame")' not in text:
     print("hyprland.lua requires only one of gestures.lua and frame.lua", file=sys.stderr)
     sys.exit(1)
+
+text = hypr_path.read_text()
+if 'require("hypr.focus")' not in text:
+    if not text.endswith("\n"):
+        text += "\n"
+    text += "\n-- The window you select gets focus, and a floating one comes forward.\n"
+    text += 'require("hypr.focus")\n'
+    hypr_path.write_text(text)
 PY
 
 plugin_dir="$home/.config/omarchy/plugins/$plugin_id"
