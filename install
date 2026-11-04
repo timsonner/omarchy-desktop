@@ -103,14 +103,27 @@ fi
 if [[ -d $plugin_dir/.git ]]; then
   head=$(git -C "$plugin_dir" rev-parse HEAD)
   if [[ $head != "$plugin_commit" ]]; then
-    if [[ -n $(git -C "$plugin_dir" status --porcelain) ]]; then
+    other=0
+    while IFS= read -r line; do
+      [[ -z $line ]] && continue
+      # The activator overlay is ours. Any other local change blocks a pin move.
+      if [[ ${line:3} != "activate-window" ]]; then
+        other=1
+        break
+      fi
+    done <<< "$(git -C "$plugin_dir" status --porcelain)"
+    if [[ $other -ne 0 ]]; then
       printf 'plugin %s has local changes; left it at %s\n' "$plugin_id" "$head" >&2
       exit 1
     fi
+    git -C "$plugin_dir" checkout --quiet -- activate-window
     git -C "$plugin_dir" fetch --quiet origin
     git -C "$plugin_dir" checkout --quiet "$plugin_commit"
   fi
 fi
+
+# Focus leaves a floating window where it was. This helper raises it too.
+install -m 755 "$root/plugin/activate-window" "$plugin_dir/activate-window"
 
 python3 - "$home/.config/omarchy/shell.json" "$plugin_id" << 'PY'
 import json, pathlib, sys
