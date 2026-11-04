@@ -114,7 +114,18 @@ hl.on("window.active", function(window)
   raise(window)
 end)
 
+local function expose_is_open()
+  local layers = hl.get_layers({ namespace = "expose-window-overview" })
+  return layers ~= nil and #layers > 0
+end
+
 hl.bind("mouse:272", function()
+  -- Exposé is the click target while its overview is open. It focuses the
+  -- chosen window, and the handler above raises that window.
+  if expose_is_open() then
+    return { ok = false }
+  end
+
   local target = window_under_pointer()
   if not target then
     return { ok = false }

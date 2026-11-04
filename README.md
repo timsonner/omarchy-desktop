@@ -4,7 +4,7 @@ The window overview, the trackpad swipes that open and close it, and the focused
 
 What you get:
 
-- Exposé from [kristofferR/omarchy-expose](https://github.com/kristofferR/omarchy-expose), pinned at `f283002`. Choosing a window focuses it and brings it to the front. The hot corner is off, so the swipe is what opens it.
+- Exposé from [kristofferR/omarchy-expose](https://github.com/kristofferR/omarchy-expose), pinned at `f283002`. Choosing a window focuses it, and Hyprland brings that window forward. The hot corner is off, so the swipe is what opens it. The overview keeps its own clicks.
 - Three-finger swipe up shows the open windows. Three-finger swipe down closes that overview and does not open the menu.
 - Tokyo Night.
 - A 6px border on the focused window, in the theme's bright magenta. Other windows have no border.
