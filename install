@@ -154,4 +154,4 @@ if command -v hyprctl >/dev/null && [[ -n ${HYPRLAND_INSTANCE_SIGNATURE:-} ]]; t
   hyprctl reload >/dev/null
 fi
 
-printf 'Desktop setup installed. Three-finger swipe up opens NittyGriddy. Super+` opens the Quake console. Reopen Files to pick up its background.\n'
+printf 'Desktop setup installed. Three-finger swipe up opens NittyGriddy. Left and right change workspace, or page the grid while it is open. Super+` opens the Quake console. Reopen Files to pick up its background.\n'
