@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Install the Exposé swipes, focused-window frame, Tokyo Night, Quake console,
+# Install NittyGriddy, the focused-window frame, Tokyo Night, Quake console,
 # and the Nautilus background.
 # Safe to run again. It copies files into place and does not remove them.
 
@@ -17,9 +17,9 @@ read_field() {
   printf '%s' "${line#*=}"
 }
 
-plugin_id=$(read_field "$root/plugin/expose.window-overview" id)
-plugin_url=$(read_field "$root/plugin/expose.window-overview" url)
-plugin_commit=$(read_field "$root/plugin/expose.window-overview" commit)
+plugin_id=$(read_field "$root/plugin/timsonner.nitty-griddy" id)
+plugin_url=$(read_field "$root/plugin/timsonner.nitty-griddy" url)
+plugin_commit=$(read_field "$root/plugin/timsonner.nitty-griddy" commit)
 quake_url=$(read_field "$root/quake-console" url)
 quake_commit=$(read_field "$root/quake-console" commit)
 theme=$(sed -n '1{s/[[:space:]]*$//;p;}' "$root/theme")
@@ -81,7 +81,7 @@ strip_from(input_path, "-- Three-finger swipe up shows the open windows (Exposé
 strip_from(look_path, "-- 6px frame on the focused window only")
 
 block = (
-    "\n-- Exposé swipes and the focused-window frame.\n"
+    "\n-- Three-finger up opens NittyGriddy. Three-finger down dismisses it.\n"
     'require("hypr.gestures")\n'
     'require("hypr.frame")\n'
 )
@@ -110,9 +110,6 @@ if [[ ! -d $plugin_dir ]]; then
 fi
 
 if [[ -d $plugin_dir/.git ]]; then
-  # Exposé focuses the chosen window. Hyprland raises it. Drop the old helper
-  # overlay so a pin move is not blocked by that retired edit.
-  git -C "$plugin_dir" checkout --quiet -- activate-window
   head=$(git -C "$plugin_dir" rev-parse HEAD)
   if [[ $head != "$plugin_commit" ]]; then
     if [[ -n $(git -C "$plugin_dir" status --porcelain) ]]; then
@@ -134,11 +131,8 @@ else:
 plugins = data.setdefault("plugins", [])
 entry = next((item for item in plugins if isinstance(item, dict) and item.get("id") == plugin_id), None)
 if entry is None:
-    plugins.append({"id": plugin_id, "hotCornerEnabled": False})
+    plugins.append({"id": plugin_id})
     path.parent.mkdir(parents=True, exist_ok=True)
-    path.write_text(json.dumps(data, indent=2) + "\n")
-elif entry.get("hotCornerEnabled") is not False:
-    entry["hotCornerEnabled"] = False
     path.write_text(json.dumps(data, indent=2) + "\n")
 PY
 
@@ -160,4 +154,4 @@ if command -v hyprctl >/dev/null && [[ -n ${HYPRLAND_INSTANCE_SIGNATURE:-} ]]; t
   hyprctl reload >/dev/null
 fi
 
-printf 'Desktop setup installed. Swipe up with three fingers for open windows. Super+` opens the Quake console. Reopen Files to pick up its background.\n'
+printf 'Desktop setup installed. Three-finger swipe up opens NittyGriddy. Super+` opens the Quake console. Reopen Files to pick up its background.\n'

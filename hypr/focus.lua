@@ -136,7 +136,7 @@ local function nitty_griddy_under_pointer()
   if not cursor or not cursor.x or not cursor.y then
     return false
   end
-  local layers = hl.get_layers({ namespace = "tim-nitty-griddy" })
+  local layers = hl.get_layers({ namespace = "timsonner-nitty-griddy" })
   if not layers then
     return false
   end
