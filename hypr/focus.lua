@@ -114,15 +114,42 @@ hl.on("window.active", function(window)
   raise(window)
 end)
 
-local function expose_is_open()
-  local layers = hl.get_layers({ namespace = "expose-window-overview" })
-  return layers ~= nil and #layers > 0
+-- A layer surface is not a window. NittyGriddy covers the screen, so the
+-- window under the pointer is the one behind the card. Focusing that window
+-- consumes the click and the card never sees it.
+local function layer_contains(layer, x, y)
+  if not layer or layer.mapped == false then
+    return false
+  end
+  local left = tonumber(layer.x)
+  local top = tonumber(layer.y)
+  local width = tonumber(layer.w)
+  local height = tonumber(layer.h)
+  if not left or not top or not width or not height then
+    return false
+  end
+  return x >= left and y >= top and x < left + width and y < top + height
+end
+
+local function nitty_griddy_under_pointer()
+  local cursor = hl.get_cursor_pos()
+  if not cursor or not cursor.x or not cursor.y then
+    return false
+  end
+  local layers = hl.get_layers({ namespace = "tim-nitty-griddy" })
+  if not layers then
+    return false
+  end
+  for _, layer in ipairs(layers) do
+    if layer_contains(layer, cursor.x, cursor.y) then
+      return true
+    end
+  end
+  return false
 end
 
 hl.bind("mouse:272", function()
-  -- Exposé is the click target while its overview is open. It focuses the
-  -- chosen window, and the handler above raises that window.
-  if expose_is_open() then
+  if nitty_griddy_under_pointer() then
     return { ok = false }
   end
 
